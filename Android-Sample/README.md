@@ -1,10 +1,10 @@
-OpenTok Android Network Test Sample
+Vonage Video API Android Network Test Sample
 ===================================
 
-This sample shows how to use this OpenTok Android SDK to determine the appropriate audio and video
-settings to use in publishing a stream to an OpenTok session. To do this, the app publishes a test
+This sample shows how to use this Vonage Video API Android SDK to determine the appropriate audio and video
+settings to use in publishing a stream to an Vonage Video API session. To do this, the app publishes a test
 stream to a test session and then uses the API to check the quality of that stream. Based on the
-quality, the app determines what the client can successfully publish to an OpenTok session:
+quality, the app determines what the client can successfully publish to an Vonage Video API session:
 
 * The client can publish an audio-video stream at the specified resolution.
 
@@ -13,7 +13,7 @@ quality, the app determines what the client can successfully publish to an OpenT
 * The client is unable to publish.
 
 The sample app only subscribes to the test stream. It does not subscribe to other streams in the
-test session. Do not use the test session for your actual call. Use a separate OpenTok session
+test session. Do not use the test session for your actual call. Use a separate Vonage Video API session
 (and session ID) to share audio-video streams between clients.
 
 ## Testing the app
@@ -30,12 +30,12 @@ To configure the app:
 2. Sync Gradle
 
 3. In the com.opentok.qualitystats.sample.MainAcdtivity.java class, set the following properties
-   to a test OpenTok session ID, token, and API key:
+   to a test Vonage Video API session ID, token, and application ID:
 
    ```
    private static final String SESSION_ID = "";
    private static final String TOKEN = "";
-   private static final String APIKEY = "";
+   private static final String APPLICATION_ID = "";
    ```
 
    **Important:** You must use a unique session, with its own session ID, for the network test. This
@@ -43,12 +43,12 @@ To configure the app:
    clients. Do not publish more than one stream to the test session.
 
    The app requires that each session uses the routed media mode -- one that uses
-   the [OpenTok Media Router](https://tokbox.com/developer/guides/create-session/#media-mode).
+   the [Vonage Video API Media Router](https://tokbox.com/developer/guides/create-session/#media-mode).
    A routed session is required to get statistics for the stream published by the local client.
 
    You can get your API key as well as a test session ID and token at the
-   [OpenTok dashboard](https://dashboard.tokbox.com/). However, in a shipping application, use
-   one of the [OpenTok server SDKs](https://tokbox.com/developer/sdks/server/) to generate a
+   [Vonage Video API dashboard](https://dashboard.tokbox.com/). However, in a shipping application, use
+   one of the [Vonage Video API server SDKs](https://tokbox.com/developer/sdks/server/) to generate a
    session ID and token.
 
 4. Debug the project on a supported device.
@@ -67,8 +67,8 @@ To configure the app:
 
 ## Understanding the code
 
-The MainActivity class connects to the test OpenTok session. Upon connecting to the session,
-the app connects initializes an OpenTok Publisher object it uses to test stream quality.
+The MainActivity class connects to the test Vonage Video API session. Upon connecting to the session,
+the app connects initializes an Vonage Video API Publisher object it uses to test stream quality.
 Upon publishing, the app subscribes to the test stream it publishes:
 
 ```java
@@ -160,7 +160,7 @@ After 15 seconds (`TIME_WINDOW`), the `checkVideoQuality()` method is called. Th
 `checkVideoQuality()` method checks to see if the video bandwidth (`mVideoBw`) and
 the packet loss ratio (`mVideoPLRatio`) are outside of acceptable thresholds for video,
 and displays UI messages. If the video quality is acceptable ("You're all set!"), the
-app disconnects the OpenTok session:
+app disconnects the Vonage Video API session:
 
 ```java
 private void checkVideoQuality() {
