@@ -43,18 +43,16 @@ To configure the app:
    clients. Do not publish more than one stream to the test session.
 
    The app requires that each session uses the routed media mode -- one that uses
-   the [Vonage Video API Media Router](https://tokbox.com/developer/guides/create-session/#media-mode).
+   the [Vonage Video API Media Router](https://developer.vonage.com/en/video/guides/create-session#the-media-router-and-media-modes).
    A routed session is required to get statistics for the stream published by the local client.
 
-   You can get your API key as well as a test session ID and token at the
-   [Vonage Video API dashboard](https://dashboard.tokbox.com/). However, in a shipping application, use
-   one of the [Vonage Video API server SDKs](https://tokbox.com/developer/sdks/server/) to generate a
+   Use one of the [Vonage server SDKs](https://developer.vonage.com/en/video/server-sdks/overview) to generate a
    session ID and token.
 
 4. Debug the project on a supported device.
 
    For a list of supported devices, see the "Developer and client requirements"
-   on [this page](https://tokbox.com/developer/sdks/android/).
+   on [this page](https://developer.vonage.com/en/video/client-sdks/android/overview#developer-and-client-requirements).
 
  The app uses a test stream and session to determine the client's ability to publish a stream
  that has audio and video. At the end of the test it reports one of the following:

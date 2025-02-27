@@ -10,8 +10,8 @@ session that connects two clients in a one-to-one call.
 
 The network test is supported in:
 
-*  [Vonage Video API Android SDK 2.12 and newer](https://tokbox.com/developer/sdks/android/)
-*  [Vonage Video API iOS SDK 2.12 and newer](https://tokbox.com/developer/sdks/ios/)
+*  [Vonage Video API Android SDK 2.12 and newer](https://developer.vonage.com/en/video/client-sdks/android/overview)
+*  [Vonage Video API iOS SDK 2.12 and newer](https://developer.vonage.com/en/video/client-sdks/ios/overview)
 
 JavaScript clients should use the sample code found here:
 https://github.com/Vonage/vonage-video-js-api-network-test.
@@ -146,7 +146,7 @@ stats API.
   connection. If you will allow the network test to run longer, you should receive
   more consistent results. Also, please, make sure that you're using routed Vonage Video API session
   instead of a relayed on. For more information, see [The Vonage Video API Media Router and media
-  modes](https://tokbox.com/developer/guides/create-session/#media-mode)
+  modes](https://developer.vonage.com/en/video/guides/create-session#the-media-router-and-media-modes)
 
 * Why the output values are really low even though my user is streaming Netflix movies?
 
