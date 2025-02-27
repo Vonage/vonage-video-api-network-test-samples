@@ -10,8 +10,8 @@ session that connects two clients in a one-to-one call.
 
 The network test is supported in:
 
-*  [Vonage Video API Android SDK 2.12 and newer](https://developer.vonage.com/en/video/client-sdks/android/overview)
-*  [Vonage Video API iOS SDK 2.12 and newer](https://developer.vonage.com/en/video/client-sdks/ios/overview)
+*  [Vonage Video API Android SDK 2.23 and newer](https://developer.vonage.com/en/video/client-sdks/android/overview)
+*  [Vonage Video API iOS SDK 2.23 and newer](https://developer.vonage.com/en/video/client-sdks/ios/overview)
 
 JavaScript clients should use the sample code found here:
 https://github.com/Vonage/vonage-video-js-api-network-test.
