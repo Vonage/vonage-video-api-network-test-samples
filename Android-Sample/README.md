@@ -1,7 +1,12 @@
 Vonage Video API Android Network Test Sample
 ===================================
 
-This sample shows how to use this Vonage Video API Android SDK to determine the appropriate audio and video
+# NetworkQualityTest
+
+The `NetworkQualityTest` class is a utility for testing network quality and gathering statistics during video streaming sessions using the OpenTok platform. It allows you to monitor various network and media statistics and also get the recommanded resoltion: - [Handle Callbacks](#handle-callbacks)
+
+
+The `MainActivity`class is sample shows how to use this Vonage Android SDK to determine the appropriate audio and video
 settings to use in publishing a stream to an Vonage Video API session. To do this, the app publishes a test
 stream to a test session and then uses the API to check the quality of that stream. Based on the
 quality, the app determines what the client can successfully publish to an Vonage Video API session:
