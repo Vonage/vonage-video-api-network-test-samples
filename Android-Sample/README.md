@@ -21,215 +21,199 @@ The sample app only subscribes to the test stream. It does not subscribe to othe
 test session. Do not use the test session for your actual call. Use a separate Vonage Video API session
 (and session ID) to share audio-video streams between clients.
 
-## Testing the app
+## Usage
 
-To configure the app:
+1. **Import the Class**
+    Make sure you've imported the `NetworkQualityTest` class into your project.
 
-1. In Android Studio, select the File > Import Project command. Navigate to the root directory of
-   this project, select the build.gradle file, and then click the OK button. The project opens in a
-   new window.
+    ```java
+    import com.opentok.qualitystats.sample.NetworkQualityTest;
+    ```
 
-   The Java code for the application is the MainActivity class in the
-   com.tokbox.qualitystats.sample package.
+2. **Instantiate the Class**
+    Create an instance of `NetworkQualityTest` by providing the required parameters: the current activity, a configuration object, and a callback listener for receiving the test results.
 
-2. Sync Gradle
+    ```java
+    NetworkQualityTest networkQualityTest = new NetworkQualityTest(
+        this,  // Current activity
+        networkQualityTestConfig,  // Configuration object
+        networkQualityTestCallbackListener  // Callback listener
+    );
+    ```
 
-3. In the com.opentok.qualitystats.sample.MainAcdtivity.java class, set the following properties
-   to a test Vonage Video API session ID, token, and application ID:
+3. **NetworkQualityTestConfig**
+    The `NetworkQualityTestConfig` class is used to configure the parameters of the network quality test. It provides the following constructor:
 
-   ```
-   private static final String SESSION_ID = "";
-   private static final String TOKEN = "";
-   private static final String APPLICATION_ID = "";
-   ```
+    You can configure the following parameters:
+    ### Configurable Parameters:
+    - **`sessionId`**:  
+    The session ID of your Vonage session. This is required to identify which session you are testing.
+    - Type: `String`
 
-   **Important:** You must use a unique session, with its own session ID, for the network test. This
-   must be a different session than the one you will use to share audio-video streams between
-   clients. Do not publish more than one stream to the test session.
+    - **`applicationId`**:  
+    Your Vonage application Id. This is required for authentication when accessing the Vonage session.
+    - Type: `String`
 
-   The app requires that each session uses the routed media mode -- one that uses
-   the [Vonage Video API Media Router](https://developer.vonage.com/en/video/guides/create-session#the-media-router-and-media-modes).
-   A routed session is required to get statistics for the stream published by the local client.
+    - **`token`**:  
+    The token used to connect to the Vonage session. This is necessary for a participant to join the session.
+    - Type: `String`
 
-   Use one of the [Vonage server SDKs](https://developer.vonage.com/en/video/server-sdks/overview) to generate a
-   session ID and token.
+    - **`resolution`**:  
+    The camera capture resolution for the publisher. If not specified, the default resolution is set to **HIGH**.
+    - Type: `String`
+    - Possible Values:
+        - **"HIGH"**: HD resolution (1280x720).
+        - **"HIGH_1080P"**: 1080p resolution (1920x1080).
+        - **"LOW"**: Lowest available resolution (typically 352x288).
+        - **"MEDIUM"**: VGA resolution (640x480).
+    - Default: `"HIGH"`
 
-4. Debug the project on a supported device.
+    - **`testDurationSec`**:  
+    The duration of the test, in seconds. If not specified, the test will default to **30 seconds**.
+    - Type: `int`
+    - Default: `30 sec`
 
-   For a list of supported devices, see the "Developer and client requirements"
-   on [this page](https://developer.vonage.com/en/video/client-sdks/android/overview#developer-and-client-requirements).
+## Handle Callbacks
+Once the test is running, you'll receive callbacks in the provided listener methods:
 
- The app uses a test stream and session to determine the client's ability to publish a stream
- that has audio and video. At the end of the test it reports one of the following:
+### `onQualityTestResults`
+Receive the final stats and the recommended setting based on quality thresholds.
 
-   * You're all set -- your client can publish an audio-video stream.
+#### Recommended Resolutions:
 
-   * Voice-only -- Your bandwidth is too low for video.
+If the estimated outgoing bitrate meets the required threshold for any of the defined quality levels, the method will return one of the following resolutions:
 
-   * You can't connect successfully -- Your bandwidth is too low for audio or video.
+  - **"1920x1080 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 4 Mbps** (4000000 bits/sec).
 
-## Understanding the code
+  - **"1280x720 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 2.5 Mbps** (2500000 bits/sec) but less than **4 Mbps**.
 
-The MainActivity class connects to the test Vonage Video API session. Upon connecting to the session,
-the app connects initializes an Vonage Video API Publisher object it uses to test stream quality.
-Upon publishing, the app subscribes to the test stream it publishes:
+  - **"960x540 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 1.2 Mbps** (1200000 bits/sec) but less than **2.5 Mbps**.
 
-```java
-@Override
-public void onStreamCreated(PublisherKit publisherKit, Stream stream) {
-    Log.i(LOGTAG, "Publisher onStreamCreated");
-    if (mSubscriber == null) {
-        subscribeToStream(stream);
-    }
-}
-```
+  - **"640x360 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 500 Kbps** (500000 bits/sec) but less than **1.2 Mbps**.
 
-The View object representing the the publisher and subscriber videos are not added to the app's
-view tree, so the test video is not displayed.
+  - **"480x270 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 300 Kbps** (300000 bits/sec) but less than **500 Kbps**.
 
-When subscribing to the stream, the app calls the `setVideoStatsListener(videoStatsListener)`
-method of the Subscriber object. 
+ - **"320x180 @ 30FPS"**  
+  Recommended if the estimated outgoing bitrate is **greater than or equal to 150 Kbps** (150000 bits/sec) but less than **300 Kbps**.
 
-```java
-private void subscribeToStream(Stream stream) {
-    mSubscriber = new Subscriber(MainActivity.this, stream);
+#### Bitrate Too Low for Video:
 
-    mSubscriber.setSubscriberListener(this);
-    mSession.subscribe(mSubscriber);
-    mSubscriber.setVideoStatsListener(new VideoStatsListener() {
+If the estimated outgoing bitrate is too low to support any video resolution, the method will return:
 
-        @Override
-        public void onVideoStats(SubscriberKit subscriber,
-                                 SubscriberKit.SubscriberVideoStats stats) {
+- **"Bitrate is too low for video"**  
+  This message is returned if the estimated outgoing bitrate is **lower than 150 Kbps** (150000 bits/sec).
 
-            if (mStartTestTime == 0) {
-                mStartTestTime = System.currentTimeMillis() / 1000;
-            }
-            checkVideoStats(stats);
+### `onQualityTestStatsUpdate`
+Receive real-time statistics updates during the test.
 
-            //check quality of the video call after TIME_VIDEO_TEST seconds
-            if (((System.currentTimeMillis() / 1000 - mStartTestTime) > TIME_VIDEO_TEST) && !audioOnly) {
-                checkVideoQuality();
-            }
-        }
+4. **Stats Logged:**
 
-    });
+- **Sent Video Bitrate** (`stats.getSentVideoBitrateKbps()`):  
+  Bitrate (in Kbps) of the video being sent from the local device to the receiver.
 
-    mSubscriber.setAudioStatsListener(new SubscriberKit.AudioStatsListener() {
-        @Override
-        public void onAudioStats(SubscriberKit subscriber, SubscriberKit.SubscriberAudioStats stats) {
+- **Sent Audio Bitrate** (`stats.getSentAudioBitrateKbps()`):  
+  Bitrate (in Kbps) of the audio being sent from the local device to the receiver.
 
-            checkAudioStats(stats);
+- **Received Audio Bitrate** (`stats.getReceivedAudioBitrateKbps()`):  
+  Bitrate (in Kbps) of the audio being received by the local device from the remote participant.
 
-        }
-    });
-}
-```
+- **Received Video Bitrate** (`stats.getReceivedVideoBitrateKbps()`):  
+  Bitrate (in Kbps) of the video being received by the local device from the remote participant.
 
-The code sets up VideoStatsListener and AudioStatsListener objects for the subscriber.
-The `VideoStatsListener.onVideoStats(subscriber, stats)` method and `AudioStatsListener.onAudioStats(subscriber, stats)` are called periodically, when
-statistics for the subscriber become available. The `stats` object passed into these
-methods contain statistics for the stream's audio (or video):
+- **Current Round Trip Time** (`stats.getCurrentRoundTripTimeMs()`):  
+  Round-trip time (RTT) in milliseconds, indicating the time it takes for a packet to travel from the sender to the receiver and back.
 
-The `stats` object pass into the `VideoStatsListener.onVideoStats()` has properties that
-define statistics for the video:
+- **Available Outgoing Bitrate** (`stats.getAvailableOutgoingBitrate()`):  
+  Available outgoing bitrate (in bps) that can be used for sending video or audio data.
 
-* `videoBytesReceived` -- The cumulative number of video bytes received by the subscriber.
+- **Audio Packet Lost Ratio** (`stats.getAudioPacketLostRatio()`):  
+  The percentage of audio packets lost during transmission.
 
-* `videoPacketsLost` -- The cumulative number of video packets lost by the subscriber.
+- **Video Packet Lost Ratio** (`stats.getVideoPacketLostRatio()`):  
+  The percentage of video packets lost during transmission.
 
-* `videoPacketsReceived` -- The cumulative number of video packets received by the
-   subscriber.
+- **Jitter** (`stats.getJitter()`):  
+  The variation in packet arrival times (in milliseconds), a measure of network instability.
 
-This `stats` object is passed into the `checkVideoStats()` method. This method calculates
-the video packet loss (based on the values of `stats.videoPacketsLost` and
-`stats.videoPacketsReceived`) and stores it in the `mVideoPLRatio` property. And it stores'
-the video bandwidth (based on the value of `stats.videoBytesReceived`) in the `mVideoBw`
-property:
+- **Quality Limitation Reason** (`stats.getQualityLimitationReason()`):  
+  The reason the quality of the media stream is limited (e.g., low network bandwidth, high packet loss).
 
-```java
-private void checkVideoStats(SubscriberKit.SubscriberVideoStats stats) {
-    long now = System.currentTimeMillis()/1000;
+- **Sent Video Resolution** (`stats.getSentVideoResolution()`):  
+  The resolution of the video being sent from the local device to the receiver.
 
-    mVideoPLRatio = (double) stats.videoPacketsLost / (double) stats.videoPacketsReceived;
-    if ((now - startTimeVideo) != 0) {
-        mVideoBw = ((8 * (stats.videoBytesReceived)) / (now - startTimeVideo));
-    }
-    Log.i(LOGTAG, "Video bandwidth: " + mVideoBw + " Video Bytes received: "+ stats.videoBytesReceived + " Video packet lost: "+ stats.videoPacketsLost + " Video packet loss ratio: " + mVideoPLRatio);
-}
-````
+- **Received Video Resolution** (`stats.getReceivedVideoResolution()`):  
+  The resolution of the video being received by the local device from the remote participant.
 
-After 15 seconds (`TIME_WINDOW`), the `checkVideoQuality()` method is called. The
-`checkVideoQuality()` method checks to see if the video bandwidth (`mVideoBw`) and
-the packet loss ratio (`mVideoPLRatio`) are outside of acceptable thresholds for video,
-and displays UI messages. If the video quality is acceptable ("You're all set!"), the
-app disconnects the Vonage Video API session:
+###  `onError`
+Handle errors that occur during the test.
+
+---
+
+### Example of `NetworkQualityTestCallbackListener` Implementation:
 
 ```java
-private void checkVideoQuality() {
-    if (mSession != null) {
-        Log.i(LOGTAG, "Check video quality stats data");
-        if (mVideoBw < 150000 || mVideoPLRatio > 0.03) {
-            //go to audio call to check the quality with video disabled
-            showAlert("Voice-only", "Your bandwidth is too low for video");
-            mProgressDialog = ProgressDialog.show(this, "Checking your available bandwidth for voice only", "Please wait");
-            mPublisher.setPublishVideo(false);
-            mSubscriber.setSubscribeToVideo(false);
-            mSubscriber.setVideoStatsListener(null);
-            audioOnly = true;
-        } else {
-            //quality is good for video call
-            mSession.disconnect();
-            showAlert("All good", "You're all set!");
-        }
-    }
-}
-```
-
-20 seconds after the subscriber starts receiving stream data (5 seconds after the video test
-is completed), the app starts the `statsRunnable` process:
-
-```java
-@Override
-public void onConnected(SubscriberKit subscriberKit) {
-    Log.i(LOGTAG, "Subscriber onConnected");
-    mHandler.postDelayed(statsRunnable, TEST_DURATION * 1000);
-}
-```
-
-The `statsRunnable` process checks to see if the session is still connected (because the quality
-was not adequate to support video). If it is, the `checkAudioQuality()` method is called:
-
-```java
-private Runnable statsRunnable = new Runnable() {
+new NetworkQualityTestCallbackListener() {
     @Override
-    public void run() {
-        if (mSession != null) {
-            checkAudioQuality();
-            mSession.disconnect();
-        }
+    public void onQualityTestResults(String recommendedSetting) {
+        Log.d(LOGTAG, "Recommended resolution: " + recommendedSetting);
     }
-};
-```
 
-The `checkAudioQuality()` method checks the audio packet loss ratio collected by the
-`AudioStatsListener.onAudioStats()` method. It then notifies the user whether a voice-only
-call is supported, based on the packet loss ratio:
+    @Override
+    public void onQualityTestStatsUpdate(CallbackQualityStats stats) {
+        Log.d(LOGTAG, "---------------------------------------------------------------");
+        Log.d(LOGTAG, "Sent Video Bitrate: " + stats.getSentVideoBitrateKbps() + " Kbps");
+        Log.d(LOGTAG, "Sent Audio Bitrate: " + stats.getSentAudioBitrateKbps() + " Kbps");
+        Log.d(LOGTAG, "Received Audio Bitrate: " + stats.getReceivedAudioBitrateKbps() + " Kbps");
+        Log.d(LOGTAG, "Received Video Bitrate: " + stats.getReceivedVideoBitrateKbps() + " Kbps");
+        Log.d(LOGTAG, "Current Round Trip Time: " + stats.getCurrentRoundTripTimeMs() + " ms");
+        Log.d(LOGTAG, "Available Outgoing Bitrate: " + stats.getAvailableOutgoingBitrate() + " bps");
+        Log.d(LOGTAG, "Audio Packet Lost Ratio  " + stats.getAudioPacketLostRatio() * 100 + "%");
+        Log.d(LOGTAG, "Video Packet Lost Ratio  " + stats.getVideoPacketLostRatio() * 100 + "%");
+        Log.d(LOGTAG, "Jitter: " + stats.getJitter());
+        Log.d(LOGTAG, "Quality Limitation Reason: " + stats.getQualityLimitationReason());
+        Log.d(LOGTAG, "Sent video resolution: " + stats.getSentVideoResolution());
+        Log.d(LOGTAG, "Received video resolution: " + stats.getReceivedVideoResolution());
+        Log.d(LOGTAG, "---------------------------------------------------------------");
+    }
 
-```java
-private void checkAudioQuality() {
-    if (mSession != null) {
-        Log.i(LOGTAG, "Check audio quality stats data");
-        if (mAudioBw < 25000 || mAudioPLRatio > 0.05) {
-            showAlert("Not good", "You can't connect successfully");
-        } else {
-            showAlert("Voice-only", "Your bandwidth is too low for video");
-        }
+    @Override
+    public void onError(String error) {
+        Log.d(LOGTAG, "Error " + error);
     }
 }
 ```
 
-Note that this sample app uses thresholds based on the table in the "Thresholds and interpreting
-network statistics" section of the main README file of this repo. You may change the threshold
-values used in your own app, based on the video resolution your app uses and your quality
-requirements.
+5. **Start the Test**
+
+    To initiate the network quality test, call the `startTest` method on the `NetworkQualityTest` instance.
+
+    ```java
+    networkQualityTest.startTest();
+    ```
+
+6. **Stop the test**
+
+    To stop the test, you can call NetworkQualityTest.stopTest(). If the test is halted before 5 seconds, an error will be triggered.
+
+    ```java
+     networkQualityTest.stopTest();
+    ```
+
+## Permissions
+
+Before using the `NetworkQualityTest` class, make sure to request the necessary permissions in your AndroidManifest.xml file:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
+## Example
+
+You can check `MainActivity` to see a sample usage and interface using `NetworkQualityTest`
